@@ -71,6 +71,9 @@ class MbTrimTest extends TestCase {
         $this->assertSame("foo\n", mb_trim("foo\n", "o"));
         $this->assertSame("foo\n", mb_rtrim("foo\n", "o"));
 
+        // AK 2024-09-13: please test this one too!
+        //$this->assertSame(' —888-888-00-00-', mb_trim(' —888-888-00-00-', UTF8_SPACES.'-–—'));
+
         $this->expectException(\ValueError::class);
         mb_trim( "\u{180F}", "", "NULL");
     }
