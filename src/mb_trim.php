@@ -1,4 +1,7 @@
 <?php
+// UTF8_SPACES specifies standard space and line break characters for the UTF-8 encoded strings.
+// Use this constant to add more characters to trim from the string together with spaces.
+define('UTF8_SPACES', " \f\n\r\t\v\x00\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}");
 
 /**
  * Multi-byte safely strip white-spaces (or other characters) from the beginning and end of a string.
@@ -9,9 +12,9 @@
  *
  * @return string The trimmed string.
  */
-function mb_trim(string $string, string $characters = " \f\n\r\t\v\x00\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}", ?string $encoding = null): string {
+function mb_trim(string $string, string $characters = UTF8_SPACES, ?string $encoding = null): string {
     // On supported versions, use a pre-calculated regex for performance.
-    if (PHP_VERSION_ID >= 80200 && ($encoding === null || $encoding === "UTF-8") && $characters === " \f\n\r\t\v\x00\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}") {
+    if (PHP_VERSION_ID >= 80200 && ($encoding === null || $encoding === 'UTF-8') && $characters === UTF8_SPACES) {
         return preg_replace("/^[\s\0]+|[\s\0]+$/uD", '', $string);
     }
 
@@ -21,26 +24,24 @@ function mb_trim(string $string, string $characters = " \f\n\r\t\v\x00\u{00A0}\u
         throw new ValueError(sprintf('%s(): Argument #3 ($encoding) must be a valid encoding, "%s" given', __FUNCTION__, $encoding));
     }
 
-    if ($characters === "") {
+    if ($characters === '') {
         return $string;
     }
 
     if ($encoding !== null && $encoding !== 'UTF-8') {
-        $string = mb_convert_encoding($string, "UTF-8", $encoding);
-        $characters = mb_convert_encoding($characters, "UTF-8", $encoding);
+        $string = mb_convert_encoding($string, 'UTF-8', $encoding);
+        $characters = mb_convert_encoding($characters, 'UTF-8', $encoding);
     }
 
     $charMap = array_map(static fn(string $char): string => preg_quote($char, '/'), mb_str_split($characters));
     $regexClass = implode('', $charMap);
-    $regex = "/^[" . $regexClass . "]+|[" . $regexClass . "]+$/uD";
+    $regex = '/^[' . $regexClass . ']+|[' . $regexClass . ']+$/uD';
 
     $return = preg_replace($regex, '', $string);
 
-    if ($encoding !== null && $encoding !== 'UTF-8') {
-        $return = mb_convert_encoding($return, $encoding, "UTF-8");
-    }
-
-    return $return;
+    return $encoding !== null && $encoding !== 'UTF-8'
+        ? mb_convert_encoding($return, $encoding, 'UTF-8')
+        : $return;
 }
 
 /**
@@ -52,9 +53,9 @@ function mb_trim(string $string, string $characters = " \f\n\r\t\v\x00\u{00A0}\u
  *
  * @return string The trimmed string.
  */
-function mb_ltrim(string $string, string $characters = " \f\n\r\t\v\x00\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}", ?string $encoding = null): string {
+function mb_ltrim(string $string, string $characters = UTF8_SPACES, ?string $encoding = null): string {
     // On supported versions, use a pre-calculated regex for performance.
-    if (PHP_VERSION_ID >= 80200 && ($encoding === null || $encoding === "UTF-8") && $characters === " \f\n\r\t\v\x00\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}") {
+    if (PHP_VERSION_ID >= 80200 && ($encoding === null || $encoding === 'UTF-8') && $characters === UTF8_SPACES) {
         return preg_replace("/^[\s\0]+/u", '', $string);
     }
 
@@ -64,26 +65,24 @@ function mb_ltrim(string $string, string $characters = " \f\n\r\t\v\x00\u{00A0}\
         throw new ValueError(sprintf('%s(): Argument #3 ($encoding) must be a valid encoding, "%s" given', __FUNCTION__, $encoding));
     }
 
-    if ($characters === "") {
+    if ($characters === '') {
         return $string;
     }
 
     if ($encoding !== null && $encoding !== 'UTF-8') {
-        $string = mb_convert_encoding($string, "UTF-8", $encoding);
-        $characters = mb_convert_encoding($characters, "UTF-8", $encoding);
+        $string = mb_convert_encoding($string, 'UTF-8', $encoding);
+        $characters = mb_convert_encoding($characters, 'UTF-8', $encoding);
     }
 
     $charMap = array_map(static fn(string $char): string => preg_quote($char, '/'), mb_str_split($characters));
     $regexClass = implode('', $charMap);
-    $regex = "/^[" . $regexClass . "]+/u";
+    $regex = '/^[' . $regexClass . ']+/u';
 
     $return = preg_replace($regex, '', $string);
 
-    if ($encoding !== null && $encoding !== 'UTF-8') {
-        $return = mb_convert_encoding($return, $encoding, "UTF-8");
-    }
-
-    return $return;
+    return $encoding !== null && $encoding !== 'UTF-8'
+        ? mb_convert_encoding($return, $encoding, 'UTF-8')
+        : $return;
 }
 
 /**
@@ -95,9 +94,9 @@ function mb_ltrim(string $string, string $characters = " \f\n\r\t\v\x00\u{00A0}\
  *
  * @return string The trimmed string.
  */
-function mb_rtrim(string $string, string $characters = " \f\n\r\t\v\x00\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}", ?string $encoding = null): string {
+function mb_rtrim(string $string, string $characters = UTF8_SPACES, ?string $encoding = null): string {
     // On supported versions, use a pre-calculated regex for performance.
-    if (PHP_VERSION_ID >= 80200 && ($encoding === null || $encoding === "UTF-8") && $characters === " \f\n\r\t\v\x00\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}") {
+    if (PHP_VERSION_ID >= 80200 && ($encoding === null || $encoding === 'UTF-8') && $characters === UTF8_SPACES) {
         return preg_replace("/[\s\0]+$/uD", '', $string);
     }
 
@@ -107,24 +106,22 @@ function mb_rtrim(string $string, string $characters = " \f\n\r\t\v\x00\u{00A0}\
         throw new ValueError(sprintf('%s(): Argument #3 ($encoding) must be a valid encoding, "%s" given', __FUNCTION__, $encoding));
     }
 
-    if ($characters === "") {
+    if ($characters === '') {
         return $string;
     }
 
     if ($encoding !== null && $encoding !== 'UTF-8') {
-        $string = mb_convert_encoding($string, "UTF-8", $encoding);
-        $characters = mb_convert_encoding($characters, "UTF-8", $encoding);
+        $string = mb_convert_encoding($string, 'UTF-8', $encoding);
+        $characters = mb_convert_encoding($characters, 'UTF-8', $encoding);
     }
 
     $charMap = array_map(static fn(string $char): string => preg_quote($char, '/'), mb_str_split($characters));
     $regexClass = implode('', $charMap);
-    $regex = "/[" . $regexClass . "]+$/uD";
+    $regex = '/[' . $regexClass . ']+$/uD';
 
     $return = preg_replace($regex, '', $string);
 
-    if ($encoding !== null && $encoding !== 'UTF-8') {
-        $return = mb_convert_encoding($return, $encoding, "UTF-8");
-    }
-
-    return $return;
+    return $encoding !== null && $encoding !== 'UTF-8'
+        ? mb_convert_encoding($return, $encoding, 'UTF-8')
+        : $return;
 }
